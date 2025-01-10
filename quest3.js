@@ -1,17 +1,36 @@
 const fs = require('fs');
 
-const faturamentoMensal = JSON.parse(fs.readFileSync('dados.json', 'utf-8'));
+fs.readFile('dados.json', 'utf8', (err, data) => {
+    if (err) {
+        console.error("Erro ao ler o arquivo JSON:", err);
+        return;
+    }
 
-const faturamentoComValores = faturamentoMensal.filter(dia => dia.valor > 0);
+    const faturamentoMensal = JSON.parse(data);  
 
-const menorValor = Math.min(...faturamentoComValores.map(dia => dia.valor));
-const maiorValor = Math.max(...faturamentoComValores.map(dia => dia.valor));
+    function calcularFaturamento(faturamento) {
+        let soma = 0;
+        let diasComFaturamento = 0;
+        let menorValor = Infinity;
+        let maiorValor = -Infinity;
 
-const somaFaturamento = faturamentoComValores.reduce((acc, dia) => acc + dia.valor, 0);
-const mediaMensal = somaFaturamento / faturamentoComValores.length;
+        faturamento.forEach(dia => {
+            if (dia.valor > 0) {
+                soma += dia.valor;
+                diasComFaturamento++;
+                if (dia.valor < menorValor) menorValor = dia.valor;
+                if (dia.valor > maiorValor) maiorValor = dia.valor;
+            }
+        });
 
-const diasAcimaDaMedia = faturamentoComValores.filter(dia => dia.valor > mediaMensal).length;
+        const media = soma / diasComFaturamento;
+        let diasAcimaDaMedia = faturamento.filter(dia => dia.valor > media).length;
 
-console.log(`Menor valor de faturamento: R$ ${menorValor.toFixed(2)}`);
-console.log(`Maior valor de faturamento: R$ ${maiorValor.toFixed(2)}`);
-console.log(`Número de dias com faturamento acima da média: ${diasAcimaDaMedia}`);
+        return { menorValor, maiorValor, diasAcimaDaMedia, media };
+    }
+
+    const resultado = calcularFaturamento(faturamentoMensal);
+    console.log(`Menor faturamento: ${resultado.menorValor}`);
+    console.log(`Maior faturamento: ${resultado.maiorValor}`);
+    console.log(`Dias com faturamento acima da média: ${resultado.diasAcimaDaMedia}`);
+});

@@ -6,10 +6,16 @@ const faturamentoPorEstado = {
   Outros: 19849.53
 };
 
-const totalFaturamento = Object.values(faturamentoPorEstado).reduce((acc, valor) => acc + valor, 0);
+function calcularPercentuais(faturamento) {
+  const totalFaturamento = Object.values(faturamento).reduce((acc, valor) => acc + valor, 0);
+  const percentuais = {};
 
-console.log("Percentual de representação por estado:");
-for (const [estado, faturamento] of Object.entries(faturamentoPorEstado)) {
-  const percentual = (faturamento / totalFaturamento) * 100;
-  console.log(`${estado}: ${percentual.toFixed(2)}%`);
+  for (const [estado, valor] of Object.entries(faturamento)) {
+      percentuais[estado] = ((valor / totalFaturamento) * 100).toFixed(2);
+  }
+
+  return percentuais;
 }
+
+const percentuais = calcularPercentuais(faturamentoPorEstado);
+console.log(percentuais);
